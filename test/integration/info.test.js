@@ -27,13 +27,12 @@ describe('Server-info', function() {
 		chai.request(server)
 		.get('/api/doesnotexist')
 		.end((err,res)=>{
-            res.body.should.be.an('object')
-            res.body.should.has.property('status').to.be.equal(404)
-            res.body.should.has.property('message').to.be.equal('Endpoint not found')
-            res.body.should.has.property('data')
-            let { data, message } = res.body
-            data.should.be.an('object')
-            done()
+            res.body.should.be.an('object');
+            let { status, message, data } = res.body;
+            status.should.equal(404);
+            message.should.be.a('string').that.is.equal('Endpoint not found');
+            data.should.be.an('object');
+            done();
 		})
 	});
     
