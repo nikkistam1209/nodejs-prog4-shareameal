@@ -108,24 +108,14 @@ app.get('/api/user/:id', (req, res) => {
 app.put('/api/user/:id', (req, res) => {
   const userId = parseInt(req.params.id);
 
-  // let user = users.find(u => u.getId()===parseInt(req.params.id))
-  // if (!user) return res.status(404).json({status:404, error: 'Unable to find user'})
+  let user = users.find(u => u.getId()===parseInt(req.params.id))
+  if (!user) return res.status(404).json({status:404, error: 'Unable to find user'})
 
-  const userIndex = users.findIndex(u => u.getId() === userId);
-  if (userIndex === -1) {
-    return res.status(404).json({ error: 'Unable to find user' });
-  }
+  Object.assign(user, req.body)
 
-  const { firstName, lastName, emailAddress } = req.body;
-  const updatedUser = { ...users[userIndex], firstName, lastName, emailAddress };
-  users[userIndex] = updatedUser;
-  res.status(200).json({ message: `Successfully updated userdata`, data: updatedUser });
-
+  res.status(200).json({ message: `Successfully updated userdata`, data: user });
 
 })
-
-
-
 
 
 
