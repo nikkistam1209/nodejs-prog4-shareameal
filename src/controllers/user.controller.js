@@ -16,22 +16,6 @@ const userController = {
   // UC-201 nieuwe user registreren
   createUser:((req, res) => {
     logger.info('register user')
-  
-    // const user = req.body;
-    // logger.debug('user = ', user)
-  
-  
-    // const emailExists = users.some(existingUser => existingUser.emailAddress === user.emailAddress);
-    // if (emailExists) {
-    //   res.status(403).json({status:403, error: 'Email already exists' });
-    //   return;
-    // }
-  
-    // user.id = index++;
-    // users.push(user);
-  
-    // res.status(201).json({status:201, message: `Succesfully registered user`, data: user});
-
 
     const user = req.body;
     logger.debug('user = ', user);
@@ -60,13 +44,9 @@ const userController = {
   
   // UC-202 opvragen alle users
   getAllUsers:(req, res, next) => {
-    //res.setHeader('Content-Type', 'application/json')
-    //res.status(200).json({status:200, message: `User data`, data: users})
-
     logger.info('get all users')
 
     let sqlStatement = 'SELECT * FROM `user`';
-
 
     pool.getConnection(function (err, conn) {
         if (err) {
@@ -106,18 +86,6 @@ const userController = {
 
   // UC-204 opvragen gegevens van een user
   getUserById:( (req, res) => {
-    //res.setHeader('Content-Type', 'application/json')
-  
-    // if (!/^\d+$/.test(req.params.id)) return res.status(401).json({status:401, error: 'Invalid token'})
-  
-    // try {
-    //   let user = users.find(u => u.getId()===parseInt(req.params.id))
-    //   if (!user) return res.status(404).json({status:404, error: 'Unable to find user'})
-    //   res.status(200).json({status:200, message: `User data`, data: user})
-    // } catch {
-    //   // 
-    // }
-
     logger.info('get user by id');
 
     const id = req.params.userId;
