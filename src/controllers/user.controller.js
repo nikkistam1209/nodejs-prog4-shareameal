@@ -137,16 +137,47 @@ const userController = {
   ,
   
   // UC-206 verwijderen van een user
-  deleteUser:((req, res) => {
-    const userId = parseInt(req.params.id);
-    const userIndex = users.findIndex(u => u.getId() === userId);
-    if (userIndex === -1) {
-      return res.status(404).json({ error: 'Unable to find user' });
-    }
-    const deletedUser = users.splice(userIndex, 1)[0].getId();
+  deleteUser:(req, res) => {
+    // const userId = parseInt(req.params.id);
+    // const userIndex = users.findIndex(u => u.getId() === userId);
+    // if (userIndex === -1) {
+    //   return res.status(404).json({ error: 'Unable to find user' });
+    // }
+    // const deletedUser = users.splice(userIndex, 1)[0].getId();
   
-    res.status(200).json({ message: `Succesfully deleted user with ID ${deletedUser}`});
-  })
+    // res.status(200).json({ message: `Succesfully deleted user with ID ${deletedUser}`});
+
+    const userId = parseInt(req.params.userId);
+    const sqlStatement = `DELETE FROM \`user\` WHERE id=${userId}`;
+  
+    pool.getConnection(function (err, conn) {
+      if (err) {
+        console.log('error', err);
+        next('error: ' + err.message);
+      }
+      if (conn) {
+        conn.query(sqlStatement, function (err, results, fields) {
+          if (err) {
+            logger.err(err.message);
+            next({
+              code: 409,
+              message: err.message
+            });
+          }
+          if (results.affectedRows === 0) {
+            logger.info(`Unable to find user with ID ${userId}`);
+            res.status(404).json({ message: `Unable to find user with ID ${userId}` });
+          } else {
+            logger.info(`Successfully deleted user with ID ${userId}`);
+            res.status(200).json({ message: `Succesfully deleted user with ID ${userId}` });
+          }
+        });
+        pool.releaseConnection(conn);
+      }
+
+    });
+
+  }
   
 }
   
