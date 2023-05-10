@@ -1,5 +1,3 @@
-//const User = require('./user')
-
 const express = require('express')
 const assert = require('assert')
 const logger = require('./src/util/utils').logger;
@@ -14,15 +12,6 @@ app.use(express.json())
 app.listen(port, () => {
   console.log(`Example app listening on port http://${hostname}:${port}/`)
 })
-
-// // in memory database
-// let users = []
-// users.push(new User(1, 'Nikki', 'Stam', 'straat', 'Dordrecht', true, 'nikki.stam@hotmail.com', 'password', '06 29414389'))
-// users.push(new User(2, 'Henk', 'van den Adel', 'straat', 'Zwijndrecht', true, 'henk@gmail.com', '1234', '06 12345678'))
-// // index voor eerstvolgende user die toegevoegd wordt
-// let index = 3;
-
-
 
 // algemene route 
 app.use('*', (req, res, next) => {
@@ -54,6 +43,8 @@ app.get('/api/info', (req, res)=> {
 // UC-201 t/m 206
 app.use('/api/user', userRoutes)
 
+// UC-301 t/m 305
+// app.use('api/meal', mealRoutes)
 
 // wanneer endpoint niet gevonden kan worden
 app.use('*', (req, res) => {
@@ -63,18 +54,6 @@ app.use('*', (req, res) => {
     data: {}
   });
 });
-
-
-// app.use((req, res, next) => {
-//   res.status(404).send("Sorry can't find that!")
-// })
-
-// app.use((err, req, res, next) => {
-//   console.error(err.stack)
-//   res.status(500).send('Something broke!')
-// })
-
-
 
 
 module.exports = app;

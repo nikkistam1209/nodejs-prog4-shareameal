@@ -1,15 +1,6 @@
-// //const database = require('../util/database');
-// const logger = require('../util/utils').logger;
-// const assert = require('assert');
-
-//const database = require('../util/database');
 const logger = require('../util/utils').logger;
 const assert = require('assert');
 const pool = require('../util/mysql-db');
-
-
-
-
 
 const userController = {
 
@@ -122,30 +113,45 @@ const userController = {
   }),
   
   // UC-205 wijzigen gegevens van een user
-  updateUser:( (req, res) => {
-    const userId = parseInt(req.params.id);
-  
-    let user = users.find(u => u.getId()===parseInt(req.params.id))
-    if (!user) return res.status(404).json({status:404, error: 'Unable to find user'})
-  
-    Object.assign(user, req.body)
-  
-    res.status(200).json({ message: `Successfully updated userdata`, data: user });
-  
-  })
+  updateUser: (req, res, next) => {
+    logger.info('update user');
+
+    const id = req.params.userId;
+    const updatedUser = req.body;
+    logger.debug('updatedUser = ', updatedUser);
+
+    const sqlStatement = 'UPDATE `user` SET ? WHERE `id` = ?';
+    pool.getConnection((err, conn) => {
+        if (err) {
+            logger.error(err.message);
+            next({ code: 500, message: 'Failed to connect to the database' });
+            return;
+        }
+        conn.query(sqlStatement, [updatedUser, id], (err, result) => {
+            if (err) {
+                logger.error(err.message);
+                next({ code: 500, message: 'Failed to update user data in the database' });
+                return;
+            }
+            if (result.affectedRows === 0) {
+                logger.warn('No user found with ID:', id);
+                res.status(404).json({ status: 404, message: `User with ID ${id} not found` });
+                return;
+            }
+            logger.info('User updated successfully with ID:', id);
+            res.status(200).json({ status: 200, message: 'Successfully updated user', data: { id, ...updatedUser } });
+        });
+        pool.releaseConnection(conn);
+    });
+
+
+
+  }
   
   ,
   
   // UC-206 verwijderen van een user
   deleteUser:(req, res) => {
-    // const userId = parseInt(req.params.id);
-    // const userIndex = users.findIndex(u => u.getId() === userId);
-    // if (userIndex === -1) {
-    //   return res.status(404).json({ error: 'Unable to find user' });
-    // }
-    // const deletedUser = users.splice(userIndex, 1)[0].getId();
-  
-    // res.status(200).json({ message: `Succesfully deleted user with ID ${deletedUser}`});
 
     const userId = parseInt(req.params.userId);
     const sqlStatement = `DELETE FROM \`user\` WHERE id=${userId}`;
