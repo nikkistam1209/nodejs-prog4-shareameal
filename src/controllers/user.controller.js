@@ -97,17 +97,17 @@ const userController = {
     logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
     logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
 
-    let sqlStatement = '';
+    //let sqlStatement = '';
 
-    if (queryField.length == 2) {
-        sqlStatement = 'SELECT * FROM `user` WHERE '
-    } else if (queryField.length = 1) {
-        sqlStatement = 'SELECT * FROM `user` WHERE  AND '
-    } else {
-        sqlStatement = 'SELECT * FROM `user`'
-    }
+    // if (queryField.length == 2) {
+    //     sqlStatement = 'SELECT * FROM `user` WHERE '
+    // } else if (queryField.length = 1) {
+    //     sqlStatement = 'SELECT * FROM `user` WHERE  AND '
+    // } else {
+    //     sqlStatement = 'SELECT * FROM `user`'
+    // }
 
-    //let sqlStatement = 'SELECT * FROM `user`'
+    let sqlStatement = 'SELECT * FROM `user`'
 
     pool.getConnection(function (err, conn) {
         if (err) {
