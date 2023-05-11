@@ -4,7 +4,7 @@ const pool = require('../util/mysql-db');
 
 const userController = {
 
-  // UC-201 nieuwe user registreren
+  // UC-201 create new user
   createUser:((req, res, next) => {
     logger.info('register user')
     const user = req.body;
@@ -90,7 +90,7 @@ const userController = {
     }
   }),
 
-  // UC-202 opvragen alle users
+  // UC-202 request all users
   getAllUsers:(req, res, next) => {
     logger.info('get all users')
     
@@ -142,7 +142,7 @@ const userController = {
     });
   },
 
-  // UC-203 opvragen gebruikersprofiel
+  // UC-203 request profile
   getUserProfile:((req, res) => {
     res.status(501).json({ 
         status: 501, 
@@ -150,7 +150,7 @@ const userController = {
     });
   }),
 
-  // UC-204 opvragen gegevens van een user
+  // UC-204 request user by id
   getUserById:( (req, res, next) => {
     logger.info('get user by id');
 
@@ -195,7 +195,7 @@ const userController = {
     });
   }),
 
-  // UC-205 wijzigen gegevens van een user
+  // UC-205 update user
   updateUser: (req, res, next) => {
     logger.info('update user');
 
@@ -248,16 +248,8 @@ const userController = {
         pool.releaseConnection(conn);
     });
   },
-  
 
-
-
-
-
-
-
-
-  // UC-206 verwijderen van een user
+  // UC-206 delete user
   deleteUser:(req, res, next) => {
 
     const userId = parseInt(req.params.userId);

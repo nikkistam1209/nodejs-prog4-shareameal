@@ -1,5 +1,3 @@
-
-
 const dbconnection = require('../../src/util/mysql-db');
 
 const chai = require('chai')
@@ -51,7 +49,6 @@ describe('UC-201', function() {
               );
             });
       });
-
 
       it('TC-201-1 - Required field missing', (done) => {
 
@@ -166,7 +163,6 @@ describe('UC-201', function() {
             })
       });
 
-      // zorgen dat kees er niet in staat 
 	it('TC-201-5 - User registered successfully', (done) => {
 
             const testUser = {
@@ -204,12 +200,6 @@ describe('UC-201', function() {
 		})
 	});
 })
-
-
-
-
-
-
 
 describe('UC-202', function() {
 

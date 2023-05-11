@@ -22,11 +22,11 @@ app.use('*', (req, res, next) => {
   next();
 })
 
-// UC-101 inloggen
+// UC-101 login
 // app.get('api/login')
 
 
-// UC-102 opvragen systeeminformatie
+// UC-102 request system information
 app.get('/api/info', (req, res)=> {
     logger.info('get server information')
   
@@ -47,7 +47,7 @@ app.use('/api/user', userRoutes)
 // UC-301 t/m 305
 // app.use('api/meal', mealRoutes)
 
-// wanneer endpoint niet gevonden kan worden
+// when endpoint can not be found
 app.use('*', (req, res) => {
   res.status(404).json({
     status: 404,
