@@ -4,7 +4,7 @@ const logger = require('./src/util/utils').logger;
 const userRoutes = require('./src/routes/user.routes')
 
 const app = express()
-const port = 3000
+const port = 443 // 3000
 //const hostname = '127.0.0.1';
 const hostname = '0.0.0.0';
 
