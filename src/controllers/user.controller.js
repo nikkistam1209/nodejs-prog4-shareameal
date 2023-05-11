@@ -93,9 +93,9 @@ const userController = {
   getAllUsers:(req, res, next) => {
     logger.info('get all users')
 
-    const queryField = Object.entries(req.query)
-    logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
-    logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
+    // const queryField = Object.entries(req.query)
+    // logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
+    // logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
 
     //let sqlStatement = '';
 

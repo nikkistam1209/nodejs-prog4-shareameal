@@ -16,6 +16,8 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+logger.info(process.env.NODE_ENV==="test" ? "shareamealtest" : undefined || process.env.DB_DATABASE || 'shareameal')
+
 pool.on('connection', function (connection) {
   logger.debug(`Connected to database '${connection.config.database}'`);
 });

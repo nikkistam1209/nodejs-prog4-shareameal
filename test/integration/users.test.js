@@ -1,3 +1,7 @@
+
+
+const dbconnection = require('../../src/util/mysql-db');
+
 const chai = require('chai')
 const chaiHttp = require('chai-http')
 const server = require('../../index')
@@ -8,7 +12,47 @@ chai.use(chaiHttp)
 
 
 
+const CLEAR_MEAL_TABLE = 'DELETE IGNORE FROM `meal`;';
+const CLEAR_PARTICIPANTS_TABLE = 'DELETE IGNORE FROM `meal_participants_user`;';
+const CLEAR_USERS_TABLE = 'DELETE IGNORE FROM `user`;';
+const CLEAR_DB =
+  CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE;
+
+const INSERT_USER =
+'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
+'(1, "Nikki", "Stam", "nikki@server.nl", "password123!", "straat", "stad"),' + 
+'(2, "Naam", "Achternaam", "naam@server.nl", "secret1!", "straat", "stad");'
+
+
+
 describe('UC-201', function() {
+
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
+
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
+
+
       it('TC-201-1 - Required field missing', (done) => {
 
             const testUser = {
@@ -98,7 +142,7 @@ describe('UC-201', function() {
             const testUser = {
                 firstName: 'Kees', 
                 lastName: 'Jansen', 
-                emailAdress: 'm.vandullemen@server.nl',
+                emailAdress: 'nikki@server.nl',
                 password: 'testpassword1!',
                 phoneNumber: '0612345678',
                 roles: '',
@@ -167,6 +211,32 @@ describe('UC-201', function() {
 
 
 describe('UC-202', function() {
+
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
+
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
+
 	it('TC-202-1 - Return all user data', (done) => {
 		chai.request(server)
 		.get('/api/user')
@@ -196,35 +266,62 @@ describe('UC-202', function() {
 
 // not implemented
 describe('UC-203', function() {
-	it.skip('TC-203-2 - User succesfully logged in', (done) => {
-		chai.request(server)
-		.get('/api/user/profile')
-		.end((err,res)=>{
-            //
-            done()
-		})
-	});
+	// it.skip('TC-203-2 - User succesfully logged in', (done) => {
+	// 	chai.request(server)
+	// 	.get('/api/user/profile')
+	// 	.end((err,res)=>{
+      //       //
+      //       done()
+	// 	})
+	// });
 })
 
 describe('UC-204', function() {
-      it.skip('TC-204-1 - Invalid token', (done) => {
-		chai.request(server)
-		.get('/api/user/invalid')
-		.end((err,res)=>{
-            assert(err === null);
 
-                  res.body.should.be.an('object')
-                  let {status, message} = res.body;
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
 
-                  status.should.equal(401)
-                  message.should.equal('Invalid token')
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
 
-                  done()
-		})
-	});
+      // it.skip('TC-204-1 - Invalid token', (done) => {
+	// 	chai.request(server)
+	// 	.get('/api/user/invalid')
+	// 	.end((err,res)=>{
+      //       assert(err === null);
+
+      //             res.body.should.be.an('object')
+      //             let {status, message} = res.body;
+
+      //             status.should.equal(401)
+      //             message.should.equal('Invalid token')
+
+      //             done()
+	// 	})
+	// });
+
       it('TC-204-2 - User ID does not exist', (done) => {
 		chai.request(server)
-		.get('/api/user/200')
+		.get('/api/user/3')
 		.end((err,res)=>{
             assert(err === null);
 
@@ -250,10 +347,10 @@ describe('UC-204', function() {
                   message.should.equal('User data')
                   data.should.be.an('object')
                   data.id.should.equal(1);
-                  data.firstName.should.equal('Mariëtte');
-                  data.lastName.should.equal('van den Dullemen');
-                  data.emailAdress.should.equal('m.vandullemen@server.nl')
-                  data.password.should.equal('secret')
+                  data.firstName.should.equal('Nikki');
+                  data.lastName.should.equal('Stam');
+                  data.emailAdress.should.equal('nikki@server.nl')
+                  data.password.should.equal('password123!')
 
                   done()
 		})
@@ -262,10 +359,35 @@ describe('UC-204', function() {
 
 describe('UC-205', function() {
 
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
+
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
+
       // tc 205-1
 
       it('TC-205-4 - User not found', (done) => {
-            const id = 200
+            const id = 3
             const testUser = {
                   firstName: 'Klaas', 
                   lastName: 'Jansen', 
@@ -290,7 +412,7 @@ describe('UC-205', function() {
 
       // zorgen dat het id van een user is die geupdate kan worden
 	it('TC-205-6 - User successfully updated', (done) => {
-            const id = 63
+            const id = 2
             const testUser = {
                   firstName: 'Klaas', 
                   lastName: 'Jansen', 
@@ -314,8 +436,34 @@ describe('UC-205', function() {
 })
 
 describe('UC-206', function() {
+
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
+
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
+
       it('TC-206-1 - User not found', (done) => {
-            const id = 200
+            const id = 3
 		chai.request(server)
 		.delete(`/api/user/${id}`)
 		.end((err,res)=>{
@@ -334,7 +482,7 @@ describe('UC-206', function() {
 
       // zorgen dat het id van een user is die verwijderd kan worden
 	it('TC-206-4 - User successfully deleted', (done) => {
-            const id = 63
+            const id = 2
 		chai.request(server)
 		.delete(`/api/user/${id}`)
 		.end((err,res)=>{
