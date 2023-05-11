@@ -5,8 +5,8 @@ const userRoutes = require('./src/routes/user.routes')
 
 const app = express()
 const port = process.env.PORT || 3000;
-//const hostname = '127.0.0.1';
-const hostname = '0.0.0.0';
+const hostname = '127.0.0.1';
+//const hostname = '0.0.0.0';
 
 app.use(express.json())
 

@@ -19,9 +19,9 @@ const CLEAR_DB =
   CLEAR_MEAL_TABLE + CLEAR_PARTICIPANTS_TABLE + CLEAR_USERS_TABLE;
 
 const INSERT_USER =
-'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `street`, `city` ) VALUES' +
-'(1, "Nikki", "Stam", "nikki@server.nl", "password123!", "straat", "stad"),' + 
-'(2, "Naam", "Achternaam", "naam@server.nl", "secret1!", "straat", "stad");'
+'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `phoneNumber`, `street`, `city` ) VALUES' +
+'(1, "Nikki", "Stam", "n.stam@server.nl", "Password123!", "06-29414389", "Amazone", "Dordrecht"),' + 
+'(2, "Naam", "Achternaam", "n.achternaam@server.nl", "Secret1!", "0612345678", "Straat", "Stad");'
 
 
 
@@ -58,8 +58,8 @@ describe('UC-201', function() {
             const testUser = {
                   firstName: '', 
                   lastName: 'Jansen', 
-                  emailAdress: 'kees@avans.nl',
-                  password: 'testpassword1!',
+                  emailAdress: 'k.jansen@avans.nl',
+                  password: 'testPassword1!',
                   phoneNumber: '0612345678',
                   roles: '',
                   street: 'teststreet', 
@@ -81,13 +81,14 @@ describe('UC-201', function() {
             })
       });
 
+      // not updated
       it('TC-201-2 - Invalid email', (done) => {
 
             const testUser = {
                 firstName: 'Kees', 
                 lastName: 'Jansen', 
                 emailAdress: 'notavalidemail',
-                password: 'testpassword1!',
+                password: 'testPassword1!',
                 phoneNumber: '0612345678',
                 roles: '',
                 street: 'teststreet', 
@@ -114,7 +115,7 @@ describe('UC-201', function() {
             const testUser = {
                 firstName: 'Kees', 
                 lastName: 'Jansen', 
-                emailAdress: 'kees@avans.nl',
+                emailAdress: 'k.jansen@avans.nl',
                 password: 'notavalidpassword',
                 phoneNumber: '0612345678',
                 roles: '',
@@ -142,8 +143,8 @@ describe('UC-201', function() {
             const testUser = {
                 firstName: 'Kees', 
                 lastName: 'Jansen', 
-                emailAdress: 'nikki@server.nl',
-                password: 'testpassword1!',
+                emailAdress: 'n.stam@server.nl',
+                password: 'testPassword1!',
                 phoneNumber: '0612345678',
                 roles: '',
                 street: 'teststreet', 
@@ -171,8 +172,8 @@ describe('UC-201', function() {
             const testUser = {
                   firstName: 'Kees', 
                   lastName: 'Jansen', 
-                  emailAdress: 'kees@avans.nl',
-                  password: 'testpassword1!',
+                  emailAdress: 'k.jansen@avans.nl',
+                  password: 'testPassword1!',
                   phoneNumber: '0612345678',
                   roles: '',
                   street: 'teststreet', 
@@ -190,11 +191,11 @@ describe('UC-201', function() {
                   status.should.equal(201)
                   message.should.equal('Successfully registered user')
                   data.should.be.an('object')
-                  //data.id.should.equal(6); index problemen zorgen ervoor dat het id niet altijd 6 zal zijn
+                  //data.id.should.equal(3)
                   data.firstName.should.equal('Kees');
                   data.lastName.should.equal('Jansen');
-                  data.emailAdress.should.equal('kees@avans.nl');
-                  data.password.should.equal('testpassword1!');
+                  data.emailAdress.should.equal('k.jansen@avans.nl');
+                  data.password.should.equal('testPassword1!');
                   data.phoneNumber.should.equal('0612345678');
                   data.street.should.equal('teststreet');
                   data.city.should.equal('testcity');
@@ -303,22 +304,6 @@ describe('UC-204', function() {
             });
       });
 
-      // it.skip('TC-204-1 - Invalid token', (done) => {
-	// 	chai.request(server)
-	// 	.get('/api/user/invalid')
-	// 	.end((err,res)=>{
-      //       assert(err === null);
-
-      //             res.body.should.be.an('object')
-      //             let {status, message} = res.body;
-
-      //             status.should.equal(401)
-      //             message.should.equal('Invalid token')
-
-      //             done()
-	// 	})
-	// });
-
       it('TC-204-2 - User ID does not exist', (done) => {
 		chai.request(server)
 		.get('/api/user/3')
@@ -334,6 +319,7 @@ describe('UC-204', function() {
                   done()
 		})
 	});
+
 	it('TC-204-3 - User ID exists', (done) => {
 		chai.request(server)
 		.get('/api/user/1')
@@ -349,8 +335,8 @@ describe('UC-204', function() {
                   data.id.should.equal(1);
                   data.firstName.should.equal('Nikki');
                   data.lastName.should.equal('Stam');
-                  data.emailAdress.should.equal('nikki@server.nl')
-                  data.password.should.equal('password123!')
+                  data.emailAdress.should.equal('n.stam@server.nl')
+                  data.password.should.equal('Password123!')
 
                   done()
 		})
@@ -384,7 +370,27 @@ describe('UC-205', function() {
             });
       });
 
-      // tc 205-1
+      it('TC-205-1 - EmailAdress missing', (done) => {
+            const id = 2
+            const testUser = {
+                  firstName: 'Klaas', 
+                  lastName: 'Jansen'
+            }
+		chai.request(server)
+		.put(`/api/user/${id}`)
+            .send(testUser)
+		.end((err,res)=>{
+            assert(err === null);
+
+            res.body.should.be.an('object');
+            let {status, message} = res.body;
+
+            status.should.equal(400);
+            message.should.equal(`emailAdress is required`);
+
+            done();
+		})
+	});
 
       it('TC-205-4 - User not found', (done) => {
             const id = 3
@@ -409,14 +415,12 @@ describe('UC-205', function() {
 		})
 	});
 
-
-      // zorgen dat het id van een user is die geupdate kan worden
 	it('TC-205-6 - User successfully updated', (done) => {
             const id = 2
             const testUser = {
                   firstName: 'Klaas', 
                   lastName: 'Jansen', 
-                  emailAdress: 'klaas@avans.nl',
+                  emailAdress: 'k.jansen@avans.nl',
             }
 		chai.request(server)
 		.put(`/api/user/${id}`)
@@ -479,8 +483,6 @@ describe('UC-206', function() {
 		})
 	});
 
-
-      // zorgen dat het id van een user is die verwijderd kan worden
 	it('TC-206-4 - User successfully deleted', (done) => {
             const id = 2
 		chai.request(server)

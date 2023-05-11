@@ -12,10 +12,13 @@ const userController = {
 
     try {
         // validation: fields must be valid and filled out
-                // ik weet niet of straat/stad/phonenumber/roles etc. verplichte velden zijn 
         assert(typeof user.firstName === 'string' && user.firstName.trim().length > 0 , 'firstName must be a string')
         assert(typeof user.lastName === 'string' && user.lastName.trim().length > 0 , 'lastName must be a string')
-        // email address validation
+        assert(typeof user.phoneNumber === 'string' && user.phoneNumber.trim().length > 0 , 'phoneNumber must be a string')
+        assert(typeof user.street === 'string' && user.street.trim().length > 0 , 'street must be a string')
+        assert(typeof user.city === 'string' && user.city.trim().length > 0 , 'city must be a string')
+
+        // email address validation (not updated)
         assert(typeof user.emailAdress === 'string', 'emailAdress must be a string')
         assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.emailAdress), 'emailAdress is not valid')
         // password validation
@@ -24,6 +27,9 @@ const userController = {
         assert(/[a-z]/i.test(user.password), 'password must contain at least one letter')
         assert(/[0-9]/.test(user.password), 'password must contain at least one number')
         assert(/[^a-z0-9]/i.test(user.password), 'password must contain at least one special character')
+        // phoneNumber validation: to do
+
+
 
         pool.query('SELECT * FROM `user` WHERE `emailAdress` = ?', [user.emailAdress], (err, result) => {
             if (err) {
@@ -84,30 +90,26 @@ const userController = {
     }
   }),
 
-
-
-
-
-  
   // UC-202 opvragen alle users
   getAllUsers:(req, res, next) => {
     logger.info('get all users')
+    
+    const queryField = Object.entries(req.query)
+    let sqlStatement = '';
+    let sqlParams = [];
 
-    // const queryField = Object.entries(req.query)
-    // logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
-    // logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
-
-    //let sqlStatement = '';
-
-    // if (queryField.length == 2) {
-    //     sqlStatement = 'SELECT * FROM `user` WHERE '
-    // } else if (queryField.length = 1) {
-    //     sqlStatement = 'SELECT * FROM `user` WHERE  AND '
-    // } else {
-    //     sqlStatement = 'SELECT * FROM `user`'
-    // }
-
-    let sqlStatement = 'SELECT * FROM `user`'
+    if (queryField.length === 2) {
+        logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
+        logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
+        sqlStatement = `SELECT * FROM \`user\` WHERE ${queryField[0][0]} = ? AND ${queryField[1][0]} = ?`;
+        sqlParams = [queryField[0][1], queryField[1][1]];
+    } else if (queryField.length === 1) {
+        logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
+        sqlStatement = `SELECT * FROM \`user\` WHERE ${queryField[0][0]} = ?`;
+        sqlParams = [queryField[0][1]];
+    } else {
+        sqlStatement = 'SELECT * FROM `user`';
+    }
 
     pool.getConnection(function (err, conn) {
         if (err) {
@@ -118,7 +120,7 @@ const userController = {
           })
         }
         if (conn) {
-          conn.query(sqlStatement, function (err, results, fields) {
+          conn.query(sqlStatement, sqlParams, function (err, results, fields) {
             if (err) {
               logger.error(err.message)
               next({
@@ -140,30 +142,19 @@ const userController = {
     });
   },
 
-
   // UC-203 opvragen gebruikersprofiel
   getUserProfile:((req, res) => {
     res.status(501).json({ 
         status: 501, 
         message: 'This function has not been implemented'
     });
-  })
-  ,
-
+  }),
 
   // UC-204 opvragen gegevens van een user
   getUserById:( (req, res, next) => {
     logger.info('get user by id');
 
     const id = req.params.userId;
-
-    if (!/^\d+$/.test(id)) {
-        res.status(401).json({ 
-            status: 401, 
-            message: 'Invalid token' 
-        });
-        return;
-    }
 
     const sqlStatement = 'SELECT * FROM `user` WHERE id = ?';
 
@@ -204,16 +195,6 @@ const userController = {
     });
   }),
 
-
-
-
-
-
-
-
-
-
-  
   // UC-205 wijzigen gegevens van een user
   updateUser: (req, res, next) => {
     logger.info('update user');
@@ -221,6 +202,14 @@ const userController = {
     const id = req.params.userId;
     const updatedUser = req.body;
     logger.debug('updatedUser = ', updatedUser);
+
+    if (!updatedUser.emailAdress) {
+        res.status(400).json({ 
+            status: 400, 
+            message: 'emailAdress is required' 
+        });
+        return;
+    }
 
     const sqlStatement = 'UPDATE `user` SET ? WHERE `id` = ?';
     pool.getConnection((err, conn) => {
