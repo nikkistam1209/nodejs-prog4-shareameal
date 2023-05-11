@@ -94,20 +94,20 @@ const userController = {
     logger.info('get all users')
 
     const queryField = Object.entries(req.query)
-    // logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
-    // logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
+    logger.info(`Queryfield 1 ${queryField[0][0]} = ${queryField[0][1]}`)
+    logger.info(`Queryfield 2 ${queryField[1][0]} = ${queryField[1][1]}`)
 
-    //let sqlStatement = '';
+    let sqlStatement = '';
 
-    // if (queryField.length == 2) {
-    //     sqlStatement = 'SELECT * FROM `user` WHERE '
-    // } else if (queryField.length = 1) {
-    //     sqlStatement = 'SELECT * FROM `user` WHERE  AND '
-    // } else {
-    //     sqlStatement = 'SELECT * FROM `user`'
-    // }
+    if (queryField.length == 2) {
+        sqlStatement = 'SELECT * FROM `user` WHERE '
+    } else if (queryField.length = 1) {
+        sqlStatement = 'SELECT * FROM `user` WHERE  AND '
+    } else {
+        sqlStatement = 'SELECT * FROM `user`'
+    }
 
-    let sqlStatement = 'SELECT * FROM `user`'
+    //let sqlStatement = 'SELECT * FROM `user`'
 
     pool.getConnection(function (err, conn) {
         if (err) {
@@ -120,7 +120,7 @@ const userController = {
         if (conn) {
           conn.query(sqlStatement, function (err, results, fields) {
             if (err) {
-              logger.err(err.message)
+              logger.error(err.message)
               next({
                 status: 500,
                 message: 'Failed to retrieve user data'
