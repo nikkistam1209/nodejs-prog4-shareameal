@@ -18,10 +18,139 @@ const CLEAR_DB =
 
 const INSERT_USER =
 'INSERT INTO `user` (`id`, `firstName`, `lastName`, `emailAdress`, `password`, `phoneNumber`, `street`, `city` ) VALUES' +
-'(1, "Nikki", "Stam", "n.stam@server.nl", "Password123!", "06-29414389", "Amazone", "Dordrecht"),' + 
-'(2, "Naam", "Achternaam", "n.achternaam@server.nl", "Secret1!", "0612345678", "Straat", "Stad");'
+'(1, "Nikki", "Stam", "n.stam@server.nl", "Password123", "06-29414389", "Amazone", "Dordrecht"),' + 
+'(2, "Naam", "Achternaam", "n.achternaam@server.nl", "Secret01", "0612345678", "Straat", "Stad");'
 
+const INSERT_MEALS =
+'INSERT INTO `meal` (`id`, `name`, `description`, `imageUrl`, `dateTime`, `maxAmountOfParticipants`, `price`, `cookId`) VALUES' +
+"(1, 'Meal A', 'description', 'image url', NOW(), 5, 6.50, 1)," +
+"(2, 'Meal B', 'description', 'image url', NOW(), 5, 6.50, 1);";
 
+describe('UC-101', function() {
+
+      beforeEach((done) => {
+            logger.trace('beforeEach called');
+
+            dbconnection.getConnection(function (err, connection) {
+              if (err) {
+                done(err);
+                throw err; // no connection
+              }
+              // Use the connection
+              connection.query(
+                CLEAR_DB + INSERT_USER,
+                function (error, results, fields) {
+                  if (error) {
+                    done(error);
+                    throw error; // not connected!
+                  }
+                  logger.trace('beforeEach done');
+                  // When done with the connection, release it.
+                  dbconnection.releaseConnection(connection);
+                  done();
+                }
+              );
+            });
+      });
+
+      it('TC-101-1 - Required field  missing', (done) => {
+            const testUser = {
+                  password: 'Password123'
+            }
+            chai.request(server)
+            .post('/api/login')
+            .send(testUser)
+            .end((err,res)=>{
+                  assert(err === null);
+      
+                  res.body.should.be.an('object')
+                  let {status, message, data} = res.body;
+      
+                  status.should.equal(400)
+                  message.should.equal('emailAdress must be a string')
+                  //data.length.should.equal(0)
+
+                  done()
+            })
+      });
+
+      it('TC-101-2 - Invalid password', (done) => {
+            const testUser = {
+                  emailAdress: 'n.stam@server.nl',
+                  password: 'invalid'
+            }
+            chai.request(server)
+            .post('/api/login')
+            .send(testUser)
+            .end((err,res)=>{
+                  assert(err === null);
+      
+                  res.body.should.be.an('object')
+                  let {status, message, data} = res.body;
+      
+                  status.should.equal(400)
+                  message.should.equal('Not authorized')
+                  //data.length.should.equal(0)
+
+                  done()
+            })
+      });
+
+      it('TC-101-3 - User does not exist', (done) => {
+            const testUser = {
+                  emailAdress: 'e.doesnot@exist.com',
+                  password: 'Password123'
+            }
+            chai.request(server)
+            .post('/api/login')
+            .send(testUser)
+            .end((err,res)=>{
+                  assert(err === null);
+      
+                  res.body.should.be.an('object')
+                  let {status, message, data} = res.body;
+      
+                  status.should.equal(404)
+                  message.should.equal('User not found')
+                  //data.should.equal(undefined)
+
+                  done()
+            })
+      });
+
+      it('TC-101-4 - User logged in successfully', (done) => {
+            const testUser = {
+                  emailAdress: 'n.stam@server.nl',
+                  password: 'Password123'
+            }
+            chai.request(server)
+            .post('/api/login')
+            .send(testUser)
+            .end((err,res)=>{
+                  assert(err === null);
+      
+                  res.body.should.be.an('object')
+                  let {status, message, data} = res.body;
+      
+                  status.should.equal(200)
+                  message.should.equal('User logged in successfully')
+                  data.should.be.an('object')
+                  data.id.should.equal(1)
+                  data.firstName.should.equal('Nikki');
+                  data.lastName.should.equal('Stam');
+                  data.emailAdress.should.equal('n.stam@server.nl');
+                  //data.password.should.equal('Password123');
+                  data.phoneNumber.should.equal('06-29414389');
+                  data.street.should.equal('Amazone');
+                  data.city.should.equal('Dordrecht');
+
+                  data.should.have.property('token')
+
+                  done()
+            })
+      });
+
+})
 
 describe('UC-201', function() {
 
@@ -78,7 +207,6 @@ describe('UC-201', function() {
             })
       });
 
-      // not updated
       it('TC-201-2 - Invalid email', (done) => {
 
             const testUser = {
@@ -113,7 +241,7 @@ describe('UC-201', function() {
                 firstName: 'Kees', 
                 lastName: 'Jansen', 
                 emailAdress: 'k.jansen@avans.nl',
-                password: 'notavalidpassword',
+                password: 'noLetters',
                 phoneNumber: '0612345678',
                 roles: '',
                 street: 'teststreet', 

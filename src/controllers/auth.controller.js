@@ -51,7 +51,7 @@ module.exports = {
                         if (token) {
                         res.status(200).json({
                             status: 200,
-                            message: 'Login endpoint',
+                            message: 'User logged in successfully',
                             data: {
                             id,
                             ...userInfo,
@@ -67,8 +67,8 @@ module.exports = {
                         data: undefined
                         })
                 } else {
-                    res.status(401).json({
-                    status: 401,
+                    res.status(400).json({
+                    status: 400,
                     message: 'Not authorized',
                     data: undefined
                     })
@@ -82,7 +82,8 @@ module.exports = {
     } catch (err) {
         res.status(400).json({
             status: 400,
-            message: err.message // assert message
+            message: err.message, // assert message
+            data: undefined
           });
     }
     },
@@ -129,11 +130,3 @@ module.exports = {
     }
 
   };
-
-
-
-
-
-//
-
-
