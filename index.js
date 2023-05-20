@@ -1,7 +1,9 @@
 const express = require('express')
 const assert = require('assert')
 const logger = require('./src/util/utils').logger;
+const authRoutes = require('./src/routes/auth.routes')
 const userRoutes = require('./src/routes/user.routes')
+const mealRoutes = require('./src/routes/meal.routes')
 
 const app = express()
 const port = process.env.PORT || 3000;
@@ -23,7 +25,7 @@ app.use('*', (req, res, next) => {
 })
 
 // UC-101 login
-// app.get('api/login')
+app.use('/api', authRoutes)
 
 
 // UC-102 request system information
@@ -45,7 +47,7 @@ app.get('/api/info', (req, res)=> {
 app.use('/api/user', userRoutes)
 
 // UC-301 t/m 305
-// app.use('api/meal', mealRoutes)
+app.use('/api/meal', mealRoutes)
 
 // when endpoint can not be found
 app.use('*', (req, res) => {
