@@ -14,7 +14,7 @@ const userController = {
         // validation: fields must be valid and filled out
         assert(typeof user.firstName === 'string' && user.firstName.trim().length > 0 , 'firstName must be a string')
         assert(typeof user.lastName === 'string' && user.lastName.trim().length > 0 , 'lastName must be a string')
-        //assert(typeof user.roles === 'string' && user.roles.trim().length > 0 , 'roles must be a string')
+        assert(typeof user.roles === 'string' && user.roles.trim().length > 0 , 'roles must be a string')
         assert(typeof user.street === 'string' && user.street.trim().length > 0 , 'street must be a string')
         assert(typeof user.city === 'string' && user.city.trim().length > 0 , 'city must be a string')
 
@@ -78,7 +78,8 @@ const userController = {
                 logger.warn(err.message)
                 res.status(403).json({
                     status: 403,
-                    message: err.message // this is the assert message: the user/email already exists
+                    message: err.message, // this is the assert message: the user/email already exists
+                    data: undefined
                 });
                 return;
             }
@@ -87,7 +88,8 @@ const userController = {
         logger.warn(err.message)
         res.status(400).json({
             status: 400,
-            message: err.message // this is the assert message
+            message: err.message, // this is the assert message
+            data: undefined
         });
         return;
     }
@@ -263,7 +265,8 @@ const userController = {
         if (userResult.length === 0) {
           res.status(404).json({
             status: 404,
-            message: 'Unable to find user'
+            message: 'Unable to find user',
+            data: undefined
           });
           return;
         }
@@ -357,6 +360,7 @@ const userController = {
           res.status(404).json({
             status: 404,
             message: `User with ID ${id} not found`,
+            data: undefined
           });
           return;
         }
@@ -368,6 +372,7 @@ const userController = {
           res.status(403).json({
             status: 403,
             message: 'Not authorized to update this user',
+            data: undefined
           });
           return;
         }
@@ -376,6 +381,7 @@ const userController = {
           res.status(400).json({
             status: 400,
             message: 'emailAdress is required',
+            data: undefined
           });
           return;
         }
@@ -471,6 +477,7 @@ const userController = {
                 res.status(404).json({
                     status: 404,
                     message: `Unable to find user with ID ${userId}`,
+                    data: undefined
                 });
                 return;
             }
@@ -482,6 +489,7 @@ const userController = {
                 res.status(403).json({
                     status: 403,
                     message: 'Not authorized to delete this user',
+                    data: undefined
                 });
                 return;
             }
@@ -503,7 +511,7 @@ const userController = {
                 res.status(200).json({
                     status: 200,
                     message: `Successfully deleted user with ID ${userId}`,
-                    data: user,
+                    data: undefined,
                 });
             });
         });

@@ -30,7 +30,7 @@ const INSERT_MEALS =
 
 describe('User API tests', () => {
 
-      // we use only one hook to set up the database  
+      // the hook to set up the database
       before((done) => {
             logger.trace('before called');
 
@@ -56,11 +56,8 @@ describe('User API tests', () => {
             });
       });
 
-      // empty data objects fixen, should.be.eql ???
       // Use case 101 login
-      describe('UC-101 - Login', function() {
-
-            
+      describe('UC-101 - Login', function() {           
 
             it('TC-101-1 - Required field  missing', (done) => {
                   const testUser = {
@@ -74,10 +71,10 @@ describe('User API tests', () => {
             
                         res.body.should.be.an('object')
                         let {status, message, data} = res.body;
-            
+           
                         status.should.equal(400)
                         message.should.equal('emailAdress must be a string')
-                        //data.length.should.equal(0)
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -99,7 +96,7 @@ describe('User API tests', () => {
             
                         status.should.equal(400)
                         message.should.equal('Not authorized')
-                        //data.length.should.equal(0)
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -121,7 +118,7 @@ describe('User API tests', () => {
             
                         status.should.equal(404)
                         message.should.equal('User not found')
-                        //data.should.equal(undefined)
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -144,22 +141,20 @@ describe('User API tests', () => {
                         status.should.equal(200)
                         message.should.equal('User logged in successfully')
                         data.should.be.an('object')
-                        data.id.should.equal(1)
-                        data.firstName.should.equal('Nikki');
-                        data.lastName.should.equal('Stam');
-                        data.emailAdress.should.equal('n.stam@server.nl');
-                        //data.password.should.equal('Password123');
-                        data.phoneNumber.should.equal('06-29414389');
-                        data.street.should.equal('Amazone');
-                        data.city.should.equal('Dordrecht');
+
+                        data.should.have.property('id')
+                        data.should.have.property('firstName');
+                        data.should.have.property('lastName');
+                        data.should.have.property('isActive');
+                        data.should.have.property('emailAdress');
+                        data.should.have.property('phoneNumber');
+                        data.should.have.property('roles');
+                        data.should.have.property('street');
+                        data.should.have.property('city');
 
                         data.should.have.property('token')
 
-                        
-
                         token = data.token
-
-                        logger.debug('token ', token)
 
                         done()
                   })
@@ -167,7 +162,6 @@ describe('User API tests', () => {
 
       })
 
-      // empty data objects fixen
       // Use case 201 registering a new user
       describe('UC-201 - Register user', function() {
 
@@ -179,7 +173,7 @@ describe('User API tests', () => {
                         emailAdress: 'k.jansen@avans.nl',
                         password: 'testPassword1!',
                         phoneNumber: '0612345678',
-                        roles: '',
+                        roles: 'guest',
                         street: 'teststreet', 
                         city: 'testcity'
                   }
@@ -190,10 +184,11 @@ describe('User API tests', () => {
                         assert(err === null);
             
                         res.body.should.be.an('object')
-                        let {status, message} = res.body;
+                        let {status, message, data} = res.body;
             
                         status.should.equal(400)
                         message.should.equal('firstName must be a string')
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -207,7 +202,7 @@ describe('User API tests', () => {
                   emailAdress: 'notavalidemail',
                   password: 'testPassword1!',
                   phoneNumber: '0612345678',
-                  roles: '',
+                  roles: 'guest',
                   street: 'teststreet', 
                   city: 'testcity'
                   }
@@ -218,10 +213,11 @@ describe('User API tests', () => {
                         assert(err === null);
 
                         res.body.should.be.an('object')
-                        let {status, message} = res.body;
+                        let {status, message, data} = res.body;
 
                         status.should.equal(400)
                         message.should.equal('emailAdress is not valid')
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -235,7 +231,7 @@ describe('User API tests', () => {
                   emailAdress: 'k.jansen@avans.nl',
                   password: 'noLetters',
                   phoneNumber: '0612345678',
-                  roles: '',
+                  roles: 'guest',
                   street: 'teststreet', 
                   city: 'testcity'
                   }
@@ -246,10 +242,11 @@ describe('User API tests', () => {
                         assert(err === null);
 
                         res.body.should.be.an('object')
-                        let {status, message} = res.body;
+                        let {status, message, data} = res.body;
 
                         status.should.equal(400)
                         message.should.equal('password must contain at least one number')
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -263,7 +260,7 @@ describe('User API tests', () => {
                   emailAdress: 'n.stam@server.nl',
                   password: 'testPassword1!',
                   phoneNumber: '0612345678',
-                  roles: '',
+                  roles: 'guest',
                   street: 'teststreet', 
                   city: 'testcity'
                   }
@@ -274,10 +271,11 @@ describe('User API tests', () => {
                         assert(err === null);
 
                         res.body.should.be.an('object')
-                        let {status, message} = res.body;
+                        let {status, message, data} = res.body;
 
                         status.should.equal(403)
                         message.should.equal('emailAdress already exists in the database')
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -291,7 +289,7 @@ describe('User API tests', () => {
                         emailAdress: 'k.jansen@avans.nl',
                         password: 'testPassword1!',
                         phoneNumber: '0612345678',
-                        roles: '',
+                        roles: 'guest',
                         street: 'teststreet', 
                         city: 'testcity'
                   }
@@ -306,22 +304,22 @@ describe('User API tests', () => {
 
                         status.should.equal(201)
                         message.should.equal('Successfully registered user')
-                        data.should.be.an('object')
-                        //data.id.should.equal(3)
-                        data.firstName.should.equal('Kees');
-                        data.lastName.should.equal('Jansen');
-                        data.emailAdress.should.equal('k.jansen@avans.nl');
-                        data.password.should.equal('testPassword1!');
-                        data.phoneNumber.should.equal('0612345678');
-                        data.street.should.equal('teststreet');
-                        data.city.should.equal('testcity');
+
+                        data.should.have.property('id')
+                        data.should.have.property('firstName');
+                        data.should.have.property('lastName');
+                        data.should.have.property('emailAdress');
+                        data.should.have.property('password');
+                        data.should.have.property('phoneNumber');
+                        data.should.have.property('roles');
+                        data.should.have.property('street');
+                        data.should.have.property('city');
 
                         done()
                   })
             });
       })
 
-      // passwords fixen
       // Use case 202 requesting all users
       describe('UC-202 - Get all users', function() {
 
@@ -346,7 +344,11 @@ describe('User API tests', () => {
                         user.should.have.property('firstName');
                         user.should.have.property('lastName');
                         user.should.have.property('emailAdress');
-                        //user.should.have.property('password');
+                        user.should.have.property('phoneNumber');
+                        user.should.have.property('roles');
+                        user.should.have.property('street');
+                        user.should.have.property('city');
+                        user.should.have.property('isActive');
                         });
 
                         done();
@@ -369,9 +371,9 @@ describe('User API tests', () => {
                         data.should.be.an('array');
                         data.length.should.be.eql(0);
 
-                        });
+                  });
 
-                        done();
+                  done();
                   
             });
 
@@ -391,9 +393,9 @@ describe('User API tests', () => {
                         data.should.be.an('array');
                         data.length.should.be.eql(0);
 
-                        });
+                  });
 
-                        done();
+                  done();
                   
             });
 
@@ -412,6 +414,18 @@ describe('User API tests', () => {
                         message.should.equal('User data endpoint');
                         data.should.be.an('array');
                         data.length.should.be.above(1);
+
+                        data.forEach(user => {
+                        user.should.have.property('id');
+                        user.should.have.property('firstName');
+                        user.should.have.property('lastName');
+                        user.should.have.property('emailAdress');
+                        user.should.have.property('phoneNumber');
+                        user.should.have.property('roles');
+                        user.should.have.property('street');
+                        user.should.have.property('city');
+                        user.should.have.property('isActive');
+                        });
 
                         });
 
@@ -435,13 +449,17 @@ describe('User API tests', () => {
                         data.should.be.an('array');
                         data.length.should.be.eql(1);
 
-                        // data.firstName.should.equal('Nikki');
-                        // data.lastName.should.equal('Stam');
-                        // data.emailAdress.should.equal('n.stam@server.nl');
-                        // //data.password.should.equal('Password123');
-                        // data.phoneNumber.should.equal('06-29414389');
-                        // data.street.should.equal('Amazone');
-                        // data.city.should.equal('Dordrecht');
+                        data.forEach(user => {
+                        user.should.have.property('id');
+                        user.should.have.property('firstName');
+                        user.should.have.property('lastName');
+                        user.should.have.property('emailAdress');
+                        user.should.have.property('phoneNumber');
+                        user.should.have.property('roles');
+                        user.should.have.property('street');
+                        user.should.have.property('city');
+                        user.should.have.property('isActive');
+                        });
 
                   });
 
@@ -449,10 +467,8 @@ describe('User API tests', () => {
                   
             });
 
-
       })
 
-      // empty data object + inhoud gevulde data object met []
       // Use case 203 requesting user profile
       describe('UC-203 - Get user profile', function() {
 
@@ -469,8 +485,7 @@ describe('User API tests', () => {
 
                         status.should.equal(401);
                         message.should.equal('Not authorized');
-                        //data.should.be.an('array');
-                        //data.length.should.be.eql(0);
+                        assert.strictEqual(data, undefined)
             	})
                   
                   done()
@@ -490,11 +505,32 @@ describe('User API tests', () => {
                         status.should.equal(200);
                         message.should.equal('User data endpoint');
                         data.should.be.an('object');
-                        //data.length.should.be.eql(1);
 
                         data.should.have.property('user');
                         data.should.have.property('meals');
 
+                        let {user, meals} = data
+
+                        user.forEach(user => {
+                        user.should.have.property('id');
+                        user.should.have.property('firstName');
+                        user.should.have.property('lastName');
+                        user.should.have.property('emailAdress');
+                        user.should.have.property('phoneNumber');
+                        user.should.have.property('roles');
+                        user.should.have.property('street');
+                        user.should.have.property('city');
+                        user.should.have.property('isActive');
+                        });
+
+                        meals.forEach(meal => {
+                        meal.should.have.property('id');
+                        meal.should.have.property('price');
+                        meal.should.have.property('imageUrl');
+                        meal.should.have.property('name');
+                        meal.should.have.property('description');
+                        meal.should.have.property('dateTime');
+                        });
                   
             	})
 
@@ -502,7 +538,6 @@ describe('User API tests', () => {
             });
       })
 
-      // data objecten
       // Use case 204 requesting a user by ID
       describe('UC-204 - Get user by id', function() {
 
@@ -519,8 +554,7 @@ describe('User API tests', () => {
 
                         status.should.equal(401);
                         message.should.equal('Not authorized');
-                        //data.should.be.an('array');
-                        //data.length.should.be.eql(0);
+                        assert.strictEqual(data, undefined)
             	})
                   
                   done()
@@ -534,10 +568,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                         res.body.should.be.an('object')
-                        let {status, message} = res.body;
+                        let {status, message, data} = res.body;
 
                         status.should.equal(404)
                         message.should.equal('Unable to find user')
+                        assert.strictEqual(data, undefined)
 
                         done()
                   })
@@ -556,11 +591,21 @@ describe('User API tests', () => {
                         status.should.equal(200)
                         message.should.equal('User data endpoint')
                         data.should.be.an('object')
-                        //data.id.should.equal(1);
-                        // data.firstName.should.equal('Nikki');
-                        // data.lastName.should.equal('Stam');
-                        // data.emailAdress.should.equal('n.stam@server.nl')
-                        // data.password.should.equal('Password123')
+
+                        let {user} = data
+                        
+                        user.forEach(user => {
+                        user.should.have.property('id');
+                        user.should.have.property('firstName');
+                        user.should.have.property('lastName');
+                        user.should.have.property('emailAdress');
+                        user.should.have.property('phoneNumber');
+                        user.should.have.property('roles');
+                        user.should.have.property('street');
+                        user.should.have.property('city');
+                        user.should.have.property('isActive');
+                        });
+
 
                         done()
                   })
@@ -585,10 +630,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(400);
                   message.should.equal(`emailAdress is required`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -611,10 +657,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(403);
                   message.should.equal(`Not authorized to update this user`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -640,7 +687,7 @@ describe('User API tests', () => {
 
                   status.should.equal(400);
                   message.should.equal(`phoneNumber is not valid`);
-                  // data.should
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -662,10 +709,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(404);
                   message.should.equal(`User with ID 666 not found`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -686,10 +734,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(401);
                   message.should.equal(`No authorization header`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -711,10 +760,17 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(200);
                   message.should.equal(`Successfully updated user with ID 1`);
+
+                  data.should.have.property('id')
+                  data.should.have.property('emailAdress');
+                  data.should.have.property('password');
+                  data.should.have.property('phoneNumber');
+                  data.should.have.property('street');
+                  data.should.have.property('city');
 
                   done();
                   })
@@ -724,7 +780,7 @@ describe('User API tests', () => {
       // Use case 206 deleting a user
       describe('UC-206 - Delete user', function() {
 
-            // we have to delete the meals from the database, or the user can not be deleted
+            // meals should be deleted from the database, or the user can not be deleted
             before((done) => {
                   logger.trace('before called');
       
@@ -758,10 +814,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(404);
                   message.should.equal(`Unable to find user with ID 666`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -774,10 +831,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(401);
                   message.should.equal(`No authorization header`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -791,10 +849,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(403);
                   message.should.equal(`Not authorized to delete this user`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })
@@ -808,10 +867,11 @@ describe('User API tests', () => {
                   assert(err === null);
 
                   res.body.should.be.an('object');
-                  let {status, message} = res.body;
+                  let {status, message, data} = res.body;
 
                   status.should.equal(200);
                   message.should.equal(`Successfully deleted user with ID 1`);
+                  assert.strictEqual(data, undefined)
 
                   done();
                   })

@@ -230,6 +230,7 @@ const mealController = {
                 res.status(403).json({
                     status: 403,
                     message: 'Not authorized to delete this meal',
+                    data: undefined
                 });
                 return;
             }
