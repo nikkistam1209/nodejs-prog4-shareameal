@@ -63,6 +63,7 @@ const mealController = {
       res.status(400).json({
         status: 400,
         message: err.message,
+        data: undefined
       });
     }
   }),
@@ -158,6 +159,7 @@ const mealController = {
                 res.status(404).json({
                     status: 404,
                     message: `Meal with ID ${mealId} not found`,
+                    data: undefined
                 });
                 return;
             }
@@ -167,7 +169,7 @@ const mealController = {
             logger.info('Found meal with ID:', mealId);
             res.status(200).json({
                 status: 200,
-                message: 'Meal data',
+                message: 'Meal data endpoint',
                 data: meal,
             });
         });
@@ -213,6 +215,7 @@ const mealController = {
                 res.status(404).json({
                     status: 404,
                     message: `Unable to find meal with ID ${mealId}`,
+                    data: undefined
                 });
                 return;
             }
@@ -245,6 +248,7 @@ const mealController = {
                 res.status(200).json({
                     status: 200,
                     message: `Successfully deleted meal with ID ${mealId}`,
+                    data: undefined
                 });
             });
         });
