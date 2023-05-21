@@ -127,7 +127,7 @@ describe('Meal API tests', () => {
                 imageUrl: 'https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg',
                 name: 'Testpasta Bolognese',
                 description: 'Maaltijd test Nikki',
-                dateTime : '2023-06-20T16:30:00.000Z'
+                dateTime : '2023-06-20 16:30:00'
             }
             chai.request(server)
             .post('/api/meal')
@@ -148,7 +148,7 @@ describe('Meal API tests', () => {
                 data.imageUrl.should.equal('https://miljuschka.nl/wp-content/uploads/2021/02/Pasta-bolognese-3-2.jpg');
                 data.name.should.equal('Testpasta Bolognese');
                 data.description.should.equal('Maaltijd test Nikki');
-                data.dateTime.should.equal('2023-06-20T16:30:00.000Z');
+                data.dateTime.should.equal('2023-06-20 16:30:00');
 
                 done()
             })
