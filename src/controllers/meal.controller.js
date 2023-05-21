@@ -68,9 +68,7 @@ const mealController = {
     }
   }),
 
-
-  
-  // optioneel
+  // not implemented
   // UC-302 update meal
   updateMeal:((req, res, next) => {
     logger.info('update meal')
@@ -79,8 +77,6 @@ const mealController = {
     
 
   }),
-
-
 
   // UC-303 get all meals
   getAllMeals:((req, res, next) => {
