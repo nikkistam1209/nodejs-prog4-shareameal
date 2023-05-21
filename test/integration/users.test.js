@@ -30,8 +30,9 @@ const INSERT_MEALS =
 
 describe('User API tests', () => {
 
+      // we use only one hook to set up the database  
       before((done) => {
-            logger.trace('beforeEach called');
+            logger.trace('before called');
 
             dbconnection.getConnection(function (err, connection) {
               if (err) {
@@ -40,13 +41,13 @@ describe('User API tests', () => {
               }
               // Use the connection
               connection.query(
-                CLEAR_DB + INSERT_USER,
+                CLEAR_DB + INSERT_USER + INSERT_MEALS,
                 function (error, results, fields) {
                   if (error) {
                     done(error);
                     throw error; // not connected!
                   }
-                  logger.trace('beforeEach done');
+                  logger.trace('before done');
                   // When done with the connection, release it.
                   dbconnection.releaseConnection(connection);
                   done();
@@ -55,7 +56,9 @@ describe('User API tests', () => {
             });
       });
 
-      describe('UC-101', function() {
+      // empty data objects fixen, should.be.eql ???
+      // Use case 101 login
+      describe('UC-101 - Login', function() {
 
             
 
@@ -164,7 +167,9 @@ describe('User API tests', () => {
 
       })
 
-      describe('UC-201', function() {
+      // empty data objects fixen
+      // Use case 201 registering a new user
+      describe('UC-201 - Register user', function() {
 
             it('TC-201-1 - Required field missing', (done) => {
 
@@ -316,7 +321,9 @@ describe('User API tests', () => {
             });
       })
 
-      describe('UC-202', function() {
+      // passwords fixen
+      // Use case 202 requesting all users
+      describe('UC-202 - Get all users', function() {
 
             it('TC-202-1 - Return all user data', (done) => {
                   logger.debug('token ', token)
@@ -346,23 +353,178 @@ describe('User API tests', () => {
                   })
             });
 
+            it('TC-202-2 - Search for non existing fields', (done) => {
+                  logger.debug('token ', token)
+                  chai.request(server)
+                  .get('/api/user?firstName=Pieter')
+                  .set('Authorization', `Bearer ${token}`)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(200);
+                        message.should.equal('User data endpoint');
+                        data.should.be.an('array');
+                        data.length.should.be.eql(0);
+
+                        });
+
+                        done();
+                  
+            });
+
+            it('TC-202-3 - Search for inactive users', (done) => {
+                  logger.debug('token ', token)
+                  chai.request(server)
+                  .get('/api/user?isActive=0')
+                  .set('Authorization', `Bearer ${token}`)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(200);
+                        message.should.equal('User data endpoint');
+                        data.should.be.an('array');
+                        data.length.should.be.eql(0);
+
+                        });
+
+                        done();
+                  
+            });
+
+            it('TC-202-4 - Search for active users', (done) => {
+                  logger.debug('token ', token)
+                  chai.request(server)
+                  .get('/api/user?isActive=1')
+                  .set('Authorization', `Bearer ${token}`)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(200);
+                        message.should.equal('User data endpoint');
+                        data.should.be.an('array');
+                        data.length.should.be.above(1);
+
+                        });
+
+                        done();
+                  
+            });
+
+            it('TC-202-5 - Search for existing field', (done) => {
+                  logger.debug('token ', token)
+                  chai.request(server)
+                  .get('/api/user?firstName=Nikki')
+                  .set('Authorization', `Bearer ${token}`)
+                  .end((err,res)=>{
+                        assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(200);
+                        message.should.equal('User data endpoint');
+                        data.should.be.an('array');
+                        data.length.should.be.eql(1);
+
+                        // data.firstName.should.equal('Nikki');
+                        // data.lastName.should.equal('Stam');
+                        // data.emailAdress.should.equal('n.stam@server.nl');
+                        // //data.password.should.equal('Password123');
+                        // data.phoneNumber.should.equal('06-29414389');
+                        // data.street.should.equal('Amazone');
+                        // data.city.should.equal('Dordrecht');
+
+                  });
+
+                  done();
+                  
+            });
 
 
       })
 
-      // not implemented
-      describe('UC-203', function() {
-            // it.skip('TC-203-2 - User succesfully logged in', (done) => {
-            // 	chai.request(server)
-            // 	.get('/api/user/profile')
-            // 	.end((err,res)=>{
-            //       //
-            //       done()
-            // 	})
-            // });
+      // empty data object + inhoud gevulde data object met []
+      // Use case 203 requesting user profile
+      describe('UC-203 - Get user profile', function() {
+
+            it('TC-203-1 - Invalid token', (done) => {
+            	chai.request(server)
+            	.get('/api/user/profile')
+                  .set('Authorization', `Bearer noToken`)
+            	.end((err,res)=>{
+                  
+                        assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(401);
+                        message.should.equal('Not authorized');
+                        //data.should.be.an('array');
+                        //data.length.should.be.eql(0);
+            	})
+                  
+                  done()
+            });
+
+            it('TC-203-2 - Successfully retrieved profile', (done) => {
+            	chai.request(server)
+            	.get('/api/user/profile')
+                  .set('Authorization', `Bearer ${token}`)
+            	.end((err,res)=>{
+                  
+                        assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(200);
+                        message.should.equal('User data endpoint');
+                        data.should.be.an('object');
+                        //data.length.should.be.eql(1);
+
+                        data.should.have.property('user');
+                        data.should.have.property('meals');
+
+                  
+            	})
+
+                  done()
+            });
       })
 
-      describe('UC-204', function() {
+      // data objecten
+      // Use case 204 requesting a user by ID
+      describe('UC-204 - Get user by id', function() {
+
+            it('TC-204-1 - Invalid token', (done) => {
+            	chai.request(server)
+            	.get('/api/user/1')
+                  .set('Authorization', `Bearer noToken`)
+            	.end((err,res)=>{
+                  
+                        assert(err === null);
+
+                        res.body.should.be.an('object');
+                        let {status, message, data} = res.body;
+
+                        status.should.equal(401);
+                        message.should.equal('Not authorized');
+                        //data.should.be.an('array');
+                        //data.length.should.be.eql(0);
+            	})
+                  
+                  done()
+            });
 
             it('TC-204-2 - User ID does not exist', (done) => {
                   chai.request(server)
@@ -405,11 +567,15 @@ describe('User API tests', () => {
             });
       })
 
-      describe('UC-205', function() {
+      // Use case 205 updating a user
+      describe('UC-205 - Update user', function() {
 
             it('TC-205-1 - EmailAdress missing', (done) => {
                   const testUser = {
-                        password: 'Password1234'
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0687654321'
                   }
                   chai.request(server)
                   .put(`/api/user/1`)
@@ -428,9 +594,65 @@ describe('User API tests', () => {
                   })
             });
 
+            it('TC-205-2 - Not the owner', (done) => {
+                  // user 1 tries to update user 2
+                  const testUser = {
+                        emailAdress: 'n.stam@avans.nl',
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0687654321'
+                  }
+                  chai.request(server)
+                  .put(`/api/user/2`)
+                  .set('Authorization', `Bearer ${token}`)
+                  .send(testUser)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                  res.body.should.be.an('object');
+                  let {status, message} = res.body;
+
+                  status.should.equal(403);
+                  message.should.equal(`Not authorized to update this user`);
+
+                  done();
+                  })
+            });
+
+            it('TC-205-3 - Invalid phoneNumber', (done) => {
+                  const testUser = {
+                        emailAdress: 'n.stam@avans.nl',
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0786172680'
+                  }
+                  chai.request(server)
+                  .put(`/api/user/1`)
+                  .set('Authorization', `Bearer ${token}`)
+                  .send(testUser)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                  res.body.should.be.an('object');
+                  let {status, message, data} = res.body;
+
+                  status.should.equal(400);
+                  message.should.equal(`phoneNumber is not valid`);
+                  // data.should
+
+                  done();
+                  })
+            });
+
             it('TC-205-4 - User not found', (done) => {
                   const testUser = {
-                        emailAdress: 'n.stam@server.nl'
+                        emailAdress: 'n.stam@server.nl',
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0687654321'
                   }
                   chai.request(server)
                   .put(`/api/user/666`)
@@ -449,9 +671,37 @@ describe('User API tests', () => {
                   })
             });
 
+            it('TC-205-5 - Not logged in', (done) => {
+                  const testUser = {
+                        emailAdress: 'n.stam@avans.nl',
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0687654321'
+                  }
+                  chai.request(server)
+                  .put(`/api/user/1`)
+                  .send(testUser)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                  res.body.should.be.an('object');
+                  let {status, message} = res.body;
+
+                  status.should.equal(401);
+                  message.should.equal(`No authorization header`);
+
+                  done();
+                  })
+            });
+
             it('TC-205-6 - User successfully updated', (done) => {
                   const testUser = {
-                        emailAdress: 'n.stam@avans.nl'
+                        emailAdress: 'n.stam@avans.nl',
+                        password: 'Password1234',
+                        street: 'Lovensdijkstraat',
+                        city: 'Breda',
+                        phoneNumber: '0687654321'
                   }
                   chai.request(server)
                   .put(`/api/user/1`)
@@ -471,7 +721,34 @@ describe('User API tests', () => {
             });
       })
 
-      describe('UC-206', function() {
+      // Use case 206 deleting a user
+      describe('UC-206 - Delete user', function() {
+
+            // we have to delete the meals from the database, or the user can not be deleted
+            before((done) => {
+                  logger.trace('before called');
+      
+                  dbconnection.getConnection(function (err, connection) {
+                    if (err) {
+                      done(err);
+                      throw err; // no connection
+                    }
+                    // Use the connection
+                    connection.query(
+                      CLEAR_MEAL_TABLE,
+                      function (error, results, fields) {
+                        if (error) {
+                          done(error);
+                          throw error; // not connected!
+                        }
+                        logger.trace('before done');
+                        // When done with the connection, release it.
+                        dbconnection.releaseConnection(connection);
+                        done();
+                      }
+                    );
+                  });
+            });
 
             it('TC-206-1 - User not found', (done) => {
                   chai.request(server)
@@ -485,6 +762,39 @@ describe('User API tests', () => {
 
                   status.should.equal(404);
                   message.should.equal(`Unable to find user with ID 666`);
+
+                  done();
+                  })
+            });
+
+            it('TC-206-2 - Not logged in', (done) => {
+                  chai.request(server)
+                  .delete(`/api/user/1`)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                  res.body.should.be.an('object');
+                  let {status, message} = res.body;
+
+                  status.should.equal(401);
+                  message.should.equal(`No authorization header`);
+
+                  done();
+                  })
+            });
+
+            it('TC-206-3 - Not the owner', (done) => {
+                  chai.request(server)
+                  .delete(`/api/user/2`)
+                  .set('Authorization', `Bearer ${token}`)
+                  .end((err,res)=>{
+                  assert(err === null);
+
+                  res.body.should.be.an('object');
+                  let {status, message} = res.body;
+
+                  status.should.equal(403);
+                  message.should.equal(`Not authorized to delete this user`);
 
                   done();
                   })

@@ -365,8 +365,8 @@ const userController = {
         // Check if userId from token matches req.params.userId
         if (userIdFromToken !== compId) {
           logger.info('Not authorized');
-          res.status(400).json({
-            status: 400,
+          res.status(403).json({
+            status: 403,
             message: 'Not authorized to update this user',
           });
           return;
@@ -426,6 +426,7 @@ const userController = {
           res.status(400).json({
             status: 400,
             message: err.message, // This is the assert message
+            data: undefined
           });
           return;
         }
@@ -484,6 +485,8 @@ const userController = {
                 });
                 return;
             }
+
+            // Delete meals??
 
             // Delete the user
             conn.query(deleteUserSql, [userId], (err, result) => {
