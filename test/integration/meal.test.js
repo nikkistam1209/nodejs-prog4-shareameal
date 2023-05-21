@@ -87,7 +87,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(400)
                 message.should.equal('name must be a string')
-                //data.should.be.an('object')
+                assert.strictEqual(data, undefined)
 
                 done()
             })
@@ -113,6 +113,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(401);
                 message.should.equal(`No authorization header`);
+                assert.strictEqual(data, undefined)
 
                 done();
             })
@@ -199,9 +200,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(404)
                 message.should.equal('Meal with ID 666 not found')
-
-                //data.should.be.an('array');
-                //data.length.should.be.equal(0);
+                assert.strictEqual(data, undefined)
 
                 done()
             })
@@ -221,14 +220,13 @@ describe('Meal API tests', () => {
                 message.should.equal('Meal data endpoint')
 
                 data.should.be.an('object');
-                // data.length.should.be.equal(1);
 
-                // meal.should.have.property('id');
-                // meal.should.have.property('price');
-                // meal.should.have.property('imageUrl');
-                // meal.should.have.property('name');
-                // meal.should.have.property('description');
-                // meal.should.have.property('dateTime');
+                data.should.have.property('id');
+                data.should.have.property('price');
+                data.should.have.property('imageUrl');
+                data.should.have.property('name');
+                data.should.have.property('description');
+                data.should.have.property('dateTime');
 
                 done()
             })
@@ -250,6 +248,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(401);
                 message.should.equal(`No authorization header`);
+                assert.strictEqual(data, undefined)
 
                 done();
             })
@@ -267,6 +266,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(403);
                 message.should.equal(`Not authorized to delete this meal`);
+                assert.strictEqual(data, undefined)
 
                 done();
             })
@@ -284,12 +284,13 @@ describe('Meal API tests', () => {
 
                 status.should.equal(404);
                 message.should.equal(`Unable to find meal with ID 666`);
+                assert.strictEqual(data, undefined)
 
                 done();
             })
         });
 
-        it('TC-305-4 - Meal not found', (done) => {
+        it('TC-305-4 - Successfully deleted meal', (done) => {
             chai.request(server)
             .delete(`/api/meal/1`)
             .set('Authorization', `Bearer ${token}`)
@@ -301,7 +302,7 @@ describe('Meal API tests', () => {
 
                 status.should.equal(200);
                 message.should.equal(`Successfully deleted meal with ID 1`);
-
+                assert.strictEqual(data, undefined)
 
                 done();
             })
